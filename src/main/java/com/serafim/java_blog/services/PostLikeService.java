@@ -5,6 +5,7 @@ import com.serafim.java_blog.repository.PostLikeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -15,10 +16,13 @@ public class PostLikeService {
     private PostLikeRepository repository;
 
     public PostLike insert(String userId, String postId) {
+        LocalDateTime now = LocalDateTime.now();
+
         PostLike postLike = new PostLike(
                 UUID.randomUUID().toString(),
                 userId,
-                postId
+                postId,
+                now
         );
 
         return repository.insert(postLike);
