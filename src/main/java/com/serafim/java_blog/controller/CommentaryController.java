@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping(value = "/commentaries")
 public class CommentaryController {
@@ -58,6 +60,14 @@ public class CommentaryController {
         commentaryService.update(commentary);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/posts/{postId}")
+    public ResponseEntity<List<Commentary>> findAllByPostId(
+            @PathVariable() String postId
+    ) {
+        List<Commentary> commentaries = commentaryService.findAllByPostId(postId);
+        return ResponseEntity.ok(commentaries);
     }
 
 }
