@@ -19,13 +19,30 @@ public class CommentaryService {
     @Autowired
     private CommentaryRepository repository;
 
-    public Commentary insert(CommentaryRequestDTO commentaryRequestDTO, String postId, String userId) {
+    public Commentary comment(CommentaryRequestDTO commentaryRequestDTO, String postId, String userId) {
         LocalDateTime now = LocalDateTime.now();
 
         Commentary commentary = new Commentary(
                 UUID.randomUUID().toString(),
                 postId,
                 userId,
+                commentaryRequestDTO.getText(),
+                0,
+                now,
+                now
+        );
+
+        return repository.insert(commentary);
+    }
+
+    public Commentary reply(CommentaryRequestDTO commentaryRequestDTO, String commentaryId, String postId, String userId) {
+        LocalDateTime now = LocalDateTime.now();
+
+        Commentary commentary = new Commentary(
+                UUID.randomUUID().toString(),
+                postId,
+                userId,
+                commentaryId,
                 commentaryRequestDTO.getText(),
                 0,
                 now,

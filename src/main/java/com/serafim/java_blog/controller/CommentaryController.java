@@ -27,14 +27,28 @@ public class CommentaryController {
     private CommentaryLikeService commentaryLikeService;
 
     @PostMapping("/posts/{postId}/users/{userId}")
-    public ResponseEntity<Commentary> insert(
+    public ResponseEntity<Commentary> comment(
             @PathVariable() String postId,
             @PathVariable() String userId,
             @RequestBody CommentaryRequestDTO commentaryRequestDTO
     ) {
         postService.findById(postId);
         userService.findById(userId);
-        return ResponseEntity.ok(commentaryService.insert(commentaryRequestDTO, postId, userId));
+        return ResponseEntity.ok(commentaryService.comment(commentaryRequestDTO, postId, userId));
+    }
+
+    @PostMapping("/{commentaryId}/posts/{postId}/users/{userId}/reply-comment")
+    public ResponseEntity<Commentary> reply(
+            @PathVariable() String commentaryId,
+            @PathVariable() String postId,
+            @PathVariable() String userId,
+            @RequestBody CommentaryRequestDTO commentaryRequestDTO
+    ) {
+        userService.findById(userId);
+        postService.findById(postId);
+        commentaryService.findById(commentaryId);
+
+        return ResponseEntity.ok(commentaryService.reply(commentaryRequestDTO, commentaryId, postId, userId));
     }
 
     @PostMapping("/{commentaryId}/posts/{postId}/users/{userId}/like")

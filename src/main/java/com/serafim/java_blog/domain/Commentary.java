@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 @Document("commentaries")
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 public class Commentary {
 
@@ -21,10 +20,33 @@ public class Commentary {
     private String postId;
     private String userId;
 
+    private String replyToId;
+
     private String text;
     private Integer likes;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    public Commentary(String id, String postId, String userId, String text, Integer likes, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        this.id = id;
+        this.postId = postId;
+        this.userId = userId;
+        this.text = text;
+        this.likes = likes;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
+    public Commentary(String id, String postId, String userId, String replyToId, String text, Integer likes, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        this.id = id;
+        this.postId = postId;
+        this.userId = userId;
+        this.replyToId = replyToId;
+        this.text = text;
+        this.likes = likes;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
 
     public void increaseLike() {
         this.likes++;
