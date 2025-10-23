@@ -1,11 +1,9 @@
 package com.serafim.java_blog.controller;
 
 import com.serafim.java_blog.domain.Commentary;
+import com.serafim.java_blog.domain.CommentaryLike;
 import com.serafim.java_blog.dto.CommentaryRequestDTO;
-import com.serafim.java_blog.services.CommentaryService;
-import com.serafim.java_blog.services.PostLikeService;
-import com.serafim.java_blog.services.PostService;
-import com.serafim.java_blog.services.UserService;
+import com.serafim.java_blog.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +22,7 @@ public class CommentaryController {
     private UserService userService;
 
     @Autowired
-    private PostLikeService postLikeService;
+    private CommentaryLikeService commentaryLikeService;
 
     @PostMapping("/posts/{postId}/users/{userId}")
     public ResponseEntity<Commentary> insert(
@@ -37,11 +35,29 @@ public class CommentaryController {
         return ResponseEntity.ok(commentaryService.insert(commentaryRequestDTO, postId, userId));
     }
 
-//    public ResponseEntity<Void> like(
-//            @PathVariable() String postId,
-//            @PathVariable() String userId,
-//            @PathVariable() String commentaryId
-//    ) {
-//
-//    }
+    @PostMapping("/{commentaryId}/posts/{postId}/users/{userId}/like")
+    public ResponseEntity<Void> like(
+            @PathVariable() String postId,
+            @PathVariable() String commentaryId,
+            @PathVariable() String userId
+    ) {
+        userService.findById(userId);
+        postService.findById(postId);
+
+        Commentary commentary = commentaryService.findById(commentaryId);
+        CommentaryLike commentaryLike = commentaryLikeService.findByUserIdAndCommentaryId(userId, commentaryId);
+
+        if (commentaryLike == null) {
+            commentaryLikeService.insert(userId, commentaryId);
+            commentary.increaseLike();
+        } else {
+            commentaryLikeService.delete(commentaryLike);
+            commentary.decreaseLike();
+        }
+
+        commentaryService.update(commentary);
+
+        return ResponseEntity.noContent().build();
+    }
+
 }

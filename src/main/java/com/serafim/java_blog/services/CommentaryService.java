@@ -1,6 +1,7 @@
 package com.serafim.java_blog.services;
 
 import com.serafim.java_blog.domain.Commentary;
+import com.serafim.java_blog.domain.Post;
 import com.serafim.java_blog.dto.CommentaryRequestDTO;
 import com.serafim.java_blog.repository.CommentaryRepository;
 import com.serafim.java_blog.services.exception.CommentaryNotFoundException;
@@ -31,6 +32,10 @@ public class CommentaryService {
         );
 
         return repository.insert(commentary);
+    }
+
+    public void update(Commentary commentary) {
+        repository.save(commentary);
     }
 
     public Commentary findById(String id) {

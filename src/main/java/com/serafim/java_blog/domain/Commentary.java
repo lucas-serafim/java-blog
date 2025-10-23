@@ -25,4 +25,14 @@ public class Commentary {
     private Integer likes;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    public void increaseLike() {
+        this.likes++;
+    }
+
+    public void decreaseLike() {
+        if (this.likes > 0) {
+            this.likes--;
+        }
+    }
 }
