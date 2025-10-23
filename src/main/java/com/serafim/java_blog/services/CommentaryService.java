@@ -9,9 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class CommentaryService {
@@ -63,6 +61,40 @@ public class CommentaryService {
 
     public List<Commentary> findAllByPostId(String postId) {
         Optional<List<Commentary>> commentaries = repository.findAllByPostId(postId);
-        return commentaries.orElse(null);
+
+        return commentaries.map(this::structureCommentaries).orElse(null);
     }
+
+    private List<Commentary> structureCommentaries(List<Commentary> flatCommentaries) {
+        Map<String, Commentary> commentaryMap = new HashMap<>();
+
+        for (Commentary commentary : flatCommentaries) {
+            commentaryMap.put(commentary.getId(), commentary);
+        }
+
+        List<Commentary> primaryCommentaries = new ArrayList<>();
+
+        for (Commentary commentary : flatCommentaries) {
+            String replyToId = commentary.getReplyToId();
+
+            if (replyToId != null) {
+                Commentary principalComment = commentaryMap.get(replyToId);
+
+                if (principalComment != null) {
+                    principalComment.addReply(commentary);
+                }
+            } else {
+                primaryCommentaries.add(commentary);
+            }
+        }
+
+        for (Commentary primary : primaryCommentaries) {
+            primary.getReplies().sort(Comparator.comparing(Commentary::getCreatedAt));
+        }
+
+        primaryCommentaries.sort(Comparator.comparing(Commentary::getCreatedAt));
+
+        return primaryCommentaries;
+    }
+
 }

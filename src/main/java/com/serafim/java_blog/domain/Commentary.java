@@ -8,6 +8,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Document("commentaries")
 @Getter
@@ -19,13 +21,13 @@ public class Commentary {
     private String id;
     private String postId;
     private String userId;
-
     private String replyToId;
-
     private String text;
     private Integer likes;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    private List<Commentary> replies = new ArrayList<>();
 
     public Commentary(String id, String postId, String userId, String text, Integer likes, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
@@ -56,5 +58,9 @@ public class Commentary {
         if (this.likes > 0) {
             this.likes--;
         }
+    }
+
+    public void addReply(Commentary commentary) {
+        this.replies.add(commentary);
     }
 }
