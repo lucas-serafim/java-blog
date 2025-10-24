@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
@@ -27,12 +28,14 @@ public class Commentary {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    @Transient
     private List<Commentary> replies = new ArrayList<>();
 
     public Commentary(String id, String postId, String userId, String text, Integer likes, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.postId = postId;
         this.userId = userId;
+        this.replyToId = null;
         this.text = text;
         this.likes = likes;
         this.createdAt = createdAt;

@@ -1,9 +1,13 @@
 package com.serafim.java_blog.controller;
 
 import com.serafim.java_blog.domain.Commentary;
-import com.serafim.java_blog.domain.CommentaryLike;
+import com.serafim.java_blog.domain.Like;
+import com.serafim.java_blog.domain.enums.LikeType;
 import com.serafim.java_blog.dto.CommentaryRequestDTO;
-import com.serafim.java_blog.services.*;
+import com.serafim.java_blog.services.CommentaryService;
+import com.serafim.java_blog.services.LikeService;
+import com.serafim.java_blog.services.PostService;
+import com.serafim.java_blog.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +28,7 @@ public class CommentaryController {
     private UserService userService;
 
     @Autowired
-    private CommentaryLikeService commentaryLikeService;
+    private LikeService likeService;
 
     @PostMapping("/posts/{postId}/users/{userId}")
     public ResponseEntity<Commentary> comment(
@@ -61,13 +65,13 @@ public class CommentaryController {
         postService.findById(postId);
 
         Commentary commentary = commentaryService.findById(commentaryId);
-        CommentaryLike commentaryLike = commentaryLikeService.findByUserIdAndCommentaryId(userId, commentaryId);
+        Like like = likeService.findByUserIdAndEntityId(userId, commentaryId);
 
-        if (commentaryLike == null) {
-            commentaryLikeService.insert(userId, commentaryId);
+        if (like == null) {
+            likeService.insert(userId, commentaryId, LikeType.COMMENTARY);
             commentary.increaseLike();
         } else {
-            commentaryLikeService.delete(commentaryLike);
+            likeService.delete(like);
             commentary.decreaseLike();
         }
 

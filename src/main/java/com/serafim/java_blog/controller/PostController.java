@@ -1,9 +1,10 @@
 package com.serafim.java_blog.controller;
 
+import com.serafim.java_blog.domain.Like;
 import com.serafim.java_blog.domain.Post;
-import com.serafim.java_blog.domain.PostLike;
+import com.serafim.java_blog.domain.enums.LikeType;
 import com.serafim.java_blog.dto.PostRequestDTO;
-import com.serafim.java_blog.services.PostLikeService;
+import com.serafim.java_blog.services.LikeService;
 import com.serafim.java_blog.services.PostService;
 import com.serafim.java_blog.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,7 @@ public class PostController {
     private UserService userService;
 
     @Autowired
-    private PostLikeService postLikeService;
+    private LikeService likeService;
 
     @PostMapping("/users/{userId}")
     public ResponseEntity<Post> insert(
@@ -45,13 +46,13 @@ public class PostController {
         userService.findById(userId);
 
         Post post = postService.findById(postId);
-        PostLike postLike = postLikeService.findByUserIdAndPostId(userId, postId);
+        Like like = likeService.findByUserIdAndEntityId(userId, postId);
 
-        if (postLike == null) {
-            postLikeService.insert(userId, postId);
+        if (like == null) {
+            likeService.insert(userId, postId, LikeType.POST);
             post.increaseLike();
         } else {
-            postLikeService.delete(postLike);
+            likeService.delete(like);
             post.decreaseLike();
         }
 
