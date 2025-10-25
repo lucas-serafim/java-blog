@@ -23,6 +23,7 @@ public class Commentary {
     private String postId;
     private String userId;
     private String replyToId;
+    private Boolean isEdited = false;
     private String text;
     private Integer likes;
     private LocalDateTime createdAt;
@@ -36,6 +37,7 @@ public class Commentary {
         this.postId = postId;
         this.userId = userId;
         this.replyToId = null;
+        this.isEdited = false;
         this.text = text;
         this.likes = likes;
         this.createdAt = createdAt;
@@ -47,6 +49,18 @@ public class Commentary {
         this.postId = postId;
         this.userId = userId;
         this.replyToId = replyToId;
+        this.text = text;
+        this.likes = likes;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
+    public Commentary(String id, String postId, String userId, String replyToId, Boolean isEdited, String text, Integer likes, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        this.id = id;
+        this.postId = postId;
+        this.userId = userId;
+        this.replyToId = replyToId;
+        this.isEdited = isEdited;
         this.text = text;
         this.likes = likes;
         this.createdAt = createdAt;

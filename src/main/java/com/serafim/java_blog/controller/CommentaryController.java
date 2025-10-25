@@ -95,4 +95,19 @@ public class CommentaryController {
         commentaryService.delete(commentaryId);
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/{commentaryId}")
+    public ResponseEntity<Commentary> update(
+            @PathVariable() String commentaryId,
+            @RequestBody CommentaryRequestDTO commentaryRequestDTO
+    ) {
+        Commentary commentary = commentaryService.findById(commentaryId);
+
+        commentary.setText(commentaryRequestDTO.getText());
+        commentary.setIsEdited(true);
+
+        commentaryService.update(commentary);
+
+        return ResponseEntity.ok(commentary);
+    }
 }
