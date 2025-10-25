@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping(value = "/posts")
 public class PostController {
@@ -59,5 +61,15 @@ public class PostController {
         postService.update(post);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/users/{userId}")
+    public ResponseEntity<List<Post>> findAllByUserId(
+            @PathVariable() String userId
+    ) {
+        userService.findById(userId);
+
+        List<Post> posts = postService.findAllByUserId(userId);
+        return ResponseEntity.ok(posts);
     }
 }
