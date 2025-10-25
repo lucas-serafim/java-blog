@@ -58,6 +58,10 @@ public class CommentaryService {
         repository.deleteAllByReplyToId(commentaryId);
     }
 
+    public void deleteAllByPostId(String postId) {
+        repository.deleteAllByPostId(postId);
+    }
+
     public Commentary findById(String id) {
         Optional<Commentary> user = repository.findById(id);
         return user.orElseThrow(() -> new CommentaryNotFoundException("Commentary not found. ID: " + id));

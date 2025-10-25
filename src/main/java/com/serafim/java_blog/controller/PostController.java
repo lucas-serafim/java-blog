@@ -4,6 +4,7 @@ import com.serafim.java_blog.domain.Like;
 import com.serafim.java_blog.domain.Post;
 import com.serafim.java_blog.domain.enums.LikeType;
 import com.serafim.java_blog.dto.PostRequestDTO;
+import com.serafim.java_blog.services.CommentaryService;
 import com.serafim.java_blog.services.LikeService;
 import com.serafim.java_blog.services.PostService;
 import com.serafim.java_blog.services.UserService;
@@ -25,6 +26,9 @@ public class PostController {
 
     @Autowired
     private LikeService likeService;
+
+    @Autowired
+    private CommentaryService commentaryService;
 
     @PostMapping("/users/{userId}")
     public ResponseEntity<Post> insert(
@@ -71,5 +75,15 @@ public class PostController {
 
         List<Post> posts = postService.findAllByUserId(userId);
         return ResponseEntity.ok(posts);
+    }
+
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<Void> delete(
+            @PathVariable() String postId
+    ) {
+        commentaryService.deleteAllByPostId(postId);
+        postService.delete(postId);
+
+        return ResponseEntity.noContent().build();
     }
 }

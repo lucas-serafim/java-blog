@@ -48,4 +48,8 @@ public class PostService {
         Optional<List<Post>> posts = repository.findAllByUserId(userId);
         return posts.orElse(null);
     }
+
+    public void delete(String postId) {
+        repository.deleteById(postId);
+    }
 }
