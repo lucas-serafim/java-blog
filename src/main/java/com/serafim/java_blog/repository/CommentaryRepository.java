@@ -9,4 +9,6 @@ import java.util.UUID;
 
 public interface CommentaryRepository extends MongoRepository<Commentary, String> {
     Optional<List<Commentary>> findAllByPostId(String postId);
+
+    void deleteAllByReplyToId(String replyToId);
 }

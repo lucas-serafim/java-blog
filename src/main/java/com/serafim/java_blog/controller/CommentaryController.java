@@ -88,4 +88,11 @@ public class CommentaryController {
         return ResponseEntity.ok(commentaries);
     }
 
+    @DeleteMapping("/{commentaryId}")
+    public ResponseEntity<Void> delete(
+            @PathVariable() String commentaryId
+    ) {
+        commentaryService.delete(commentaryId);
+        return ResponseEntity.noContent().build();
+    }
 }

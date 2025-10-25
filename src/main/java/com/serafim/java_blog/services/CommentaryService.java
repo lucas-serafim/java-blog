@@ -53,6 +53,11 @@ public class CommentaryService {
         repository.save(commentary);
     }
 
+    public void delete(String commentaryId) {
+        repository.deleteById(commentaryId);
+        repository.deleteAllByReplyToId(commentaryId);
+    }
+
     public Commentary findById(String id) {
         Optional<Commentary> user = repository.findById(id);
         return user.orElseThrow(() -> new CommentaryNotFoundException("Commentary not found. ID: " + id));
@@ -60,7 +65,6 @@ public class CommentaryService {
 
     public List<Commentary> findAllByPostId(String postId) {
         Optional<List<Commentary>> commentaries = repository.findAllByPostId(postId);
-
         return commentaries.map(this::structureCommentaries).orElse(null);
     }
 
@@ -95,5 +99,4 @@ public class CommentaryService {
 
         return primaryCommentaries;
     }
-
 }
