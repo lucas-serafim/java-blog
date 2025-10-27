@@ -2,17 +2,22 @@ package com.serafim.java_blog.controller;
 
 import com.serafim.java_blog.domain.Commentary;
 import com.serafim.java_blog.domain.Like;
+import com.serafim.java_blog.domain.Post;
+import com.serafim.java_blog.domain.User;
 import com.serafim.java_blog.domain.enums.LikeType;
 import com.serafim.java_blog.dto.CommentaryRequestDTO;
 import com.serafim.java_blog.services.CommentaryService;
 import com.serafim.java_blog.services.LikeService;
 import com.serafim.java_blog.services.PostService;
 import com.serafim.java_blog.services.UserService;
+import org.apache.coyote.BadRequestException;
+import org.apache.kafka.common.errors.AuthorizationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping(value = "/commentaries")
@@ -36,8 +41,8 @@ public class CommentaryController {
             @PathVariable() String userId,
             @RequestBody CommentaryRequestDTO commentaryRequestDTO
     ) {
-        postService.findById(postId);
         userService.findById(userId);
+        postService.findById(postId);
         return ResponseEntity.ok(commentaryService.comment(commentaryRequestDTO, postId, userId));
     }
 
@@ -88,20 +93,36 @@ public class CommentaryController {
         return ResponseEntity.ok(commentaries);
     }
 
-    @DeleteMapping("/{commentaryId}")
+    @DeleteMapping("/{commentaryId}/posts/{postId}/users/{userId}")
     public ResponseEntity<Void> delete(
-            @PathVariable() String commentaryId
+            @PathVariable() String commentaryId,
+            @PathVariable() String postId,
+            @PathVariable() String userId
     ) {
+        User user = userService.findById(userId);
+        Post post = postService.findById(postId);
+        Commentary commentary = commentaryService.findById(commentaryId);
+
+        if (!Objects.equals(commentary.getUserId(), user.getId()) || !Objects.equals(post.getUserId(), user.getId())) {
+            throw new AuthorizationException("You are not authorized to delete this comment. Only the comment owner or post owner may delete it.");
+        }
+
         commentaryService.delete(commentaryId);
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/{commentaryId}")
+    @PatchMapping("/{commentaryId}/users/{userId}")
     public ResponseEntity<Commentary> update(
             @PathVariable() String commentaryId,
+            @PathVariable() String userId,
             @RequestBody CommentaryRequestDTO commentaryRequestDTO
     ) {
+        User user = userService.findById(userId);
         Commentary commentary = commentaryService.findById(commentaryId);
+
+        if (!Objects.equals(user.getId(), commentary.getUserId())) {
+            throw new AuthorizationException("You are not authorized to delete this comment. Only the comment owner may delete it.");
+        }
 
         commentary.setText(commentaryRequestDTO.getText());
         commentary.setIsEdited(true);
