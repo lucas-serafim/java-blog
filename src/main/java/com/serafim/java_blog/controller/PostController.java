@@ -1,5 +1,6 @@
 package com.serafim.java_blog.controller;
 
+import com.serafim.java_blog.controller.exception.PostAuthorization;
 import com.serafim.java_blog.domain.Like;
 import com.serafim.java_blog.domain.Post;
 import com.serafim.java_blog.domain.User;
@@ -9,7 +10,7 @@ import com.serafim.java_blog.services.CommentaryService;
 import com.serafim.java_blog.services.LikeService;
 import com.serafim.java_blog.services.PostService;
 import com.serafim.java_blog.services.UserService;
-import org.apache.kafka.common.errors.AuthorizationException;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,7 +37,7 @@ public class PostController {
     @PostMapping("/users/{userId}")
     public ResponseEntity<Post> insert(
             @PathVariable() String userId,
-            @RequestBody PostRequestDTO postRequestDTO
+            @Valid @RequestBody PostRequestDTO postRequestDTO
     ) {
         userService.findById(userId);
         return ResponseEntity.ok(postService.insert(postRequestDTO, userId));
@@ -89,7 +90,7 @@ public class PostController {
         Post post = postService.findById(postId);
 
         if (!Objects.equals(user.getId(), post.getUserId())) {
-            throw new AuthorizationException("You are not authorized to delete this post. Only the post owner may delete it.");
+            throw new PostAuthorization("You are not authorized to delete this post. Only the post owner may delete it.");
         }
 
         commentaryService.deleteAllByPostId(postId);
