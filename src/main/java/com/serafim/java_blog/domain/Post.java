@@ -8,6 +8,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Document("posts")
@@ -24,9 +26,21 @@ public class Post {
     private String title;
     private String text;
     private Integer likes;
-    private String[] images;
+    private List<String> images;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    public Post(String id, String userId, String title, String text, Integer likes, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        this.id = id;
+        this.userId = userId;
+        this.title = title;
+        this.text = text;
+        this.likes = likes;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+
+        this.images = new ArrayList<>();
+    }
 
     public void increaseLike() {
         this.likes++;

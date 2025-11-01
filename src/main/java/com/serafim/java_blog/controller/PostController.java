@@ -34,10 +34,10 @@ public class PostController {
     @Autowired
     private CommentaryService commentaryService;
 
-    @PostMapping("/users/{userId}")
+    @PostMapping(path = "/users/{userId}")
     public ResponseEntity<Post> insert(
             @PathVariable() String userId,
-            @Valid @RequestBody PostRequestDTO postRequestDTO
+            @Valid @ModelAttribute PostRequestDTO postRequestDTO
     ) {
         userService.findById(userId);
         return ResponseEntity.ok(postService.insert(postRequestDTO, userId));

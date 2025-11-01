@@ -6,11 +6,11 @@ import com.serafim.java_blog.repository.PostRepository;
 import com.serafim.java_blog.services.exception.PostNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class PostService {
@@ -18,8 +18,18 @@ public class PostService {
     @Autowired
     private PostRepository repository;
 
+    @Autowired
+    private S3Service s3Service;
+
     public Post insert(PostRequestDTO postRequestDTO, String userId) {
         LocalDateTime now = LocalDateTime.now();
+
+        List<String> imageUrls = new ArrayList<>();
+
+        for (MultipartFile file : postRequestDTO.getImages()) {
+            String url = s3Service.putObject(file);
+            imageUrls.add(url);
+        }
 
         Post post = new Post(
                 UUID.randomUUID().toString(),
@@ -27,7 +37,7 @@ public class PostService {
                 postRequestDTO.getTitle(),
                 postRequestDTO.getText(),
                 0,
-                postRequestDTO.getImages(),
+                imageUrls,
                 now,
                 now
         );
