@@ -6,6 +6,7 @@ import com.serafim.java_blog.domain.Post;
 import com.serafim.java_blog.domain.User;
 import com.serafim.java_blog.domain.enums.LikeType;
 import com.serafim.java_blog.dto.PostRequestDTO;
+import com.serafim.java_blog.dto.UpdatePostRequestDTO;
 import com.serafim.java_blog.services.CommentaryService;
 import com.serafim.java_blog.services.LikeService;
 import com.serafim.java_blog.services.PostService;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @RestController
 @RequestMapping(value = "/posts")
@@ -98,4 +100,29 @@ public class PostController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/{postId}/users/{userId}")
+    public ResponseEntity<Post> update(
+            @PathVariable() String postId,
+            @PathVariable() String userId,
+            @Valid @RequestBody UpdatePostRequestDTO updatePostRequestDTO
+    ) {
+        User user = userService.findById(userId);
+        Post post = postService.findById(postId);
+
+        if (!Objects.equals(user.getId(), post.getUserId())) {
+            throw new PostAuthorization("You are not authorized to delete this post. Only the post owner may delete it.");
+        }
+
+        post.setTitle(Optional.ofNullable(updatePostRequestDTO.getTitle())
+                .orElse(post.getTitle()));
+
+        post.setText(Optional.ofNullable(updatePostRequestDTO.getText())
+                .orElse(post.getText()));
+
+        postService.update(post);
+
+        return ResponseEntity.ok(post);
+    }
+
 }
