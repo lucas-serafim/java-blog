@@ -1,5 +1,6 @@
 package com.serafim.java_blog.services;
 
+import com.serafim.java_blog.domain.Image;
 import com.serafim.java_blog.domain.Post;
 import com.serafim.java_blog.dto.PostRequestDTO;
 import com.serafim.java_blog.repository.PostRepository;
@@ -24,11 +25,18 @@ public class PostService {
     public Post insert(PostRequestDTO postRequestDTO, String userId) {
         LocalDateTime now = LocalDateTime.now();
 
-        List<String> imageUrls = new ArrayList<>();
+        List<Image> images = new ArrayList<>();
 
         for (MultipartFile file : postRequestDTO.getImages()) {
-            String url = s3Service.putObject(file);
-            imageUrls.add(url);
+            String imageId = UUID.randomUUID().toString();
+            String url = s3Service.putObject(imageId, file);;
+
+            Image image = new Image(
+                    imageId,
+                    url
+            );
+
+            images.add(image);
         }
 
         Post post = new Post(
@@ -37,7 +45,7 @@ public class PostService {
                 postRequestDTO.getTitle(),
                 postRequestDTO.getText(),
                 0,
-                imageUrls,
+                images,
                 now,
                 now
         );

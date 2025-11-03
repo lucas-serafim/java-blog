@@ -26,7 +26,7 @@ public class Post {
     private String title;
     private String text;
     private Integer likes;
-    private List<String> images;
+    private List<Image> images;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

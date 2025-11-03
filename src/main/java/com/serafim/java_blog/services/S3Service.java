@@ -23,11 +23,11 @@ public class S3Service {
     @Value("${aws.bucket-name}")
     private String bucketName;
 
-    public String putObject(MultipartFile file) {
+    public String putObject(String imageId, MultipartFile file) {
         String originalFilename = file.getOriginalFilename();
         String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
 
-        String keyName = UUID.randomUUID() + fileExtension;
+        String keyName = imageId + fileExtension;
 
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentLength(file.getSize());
