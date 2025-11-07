@@ -5,13 +5,16 @@ import com.serafim.java_blog.controller.exception.PostAuthorization;
 import com.serafim.java_blog.domain.CustomError;
 import com.serafim.java_blog.services.exception.CommentaryNotFoundException;
 import com.serafim.java_blog.services.exception.PostNotFoundException;
+import com.serafim.java_blog.services.exception.UserAlreadyExistsException;
 import com.serafim.java_blog.services.exception.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import javax.security.sasl.AuthenticationException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -36,7 +39,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({
             CommentaryAuthorization.class,
-            PostAuthorization.class
+            PostAuthorization.class,
+            UserAlreadyExistsException.class
     })
     public ResponseEntity<CustomError> commentaryAuthorization(RuntimeException exception) {
         CustomError customError = CustomError
@@ -67,6 +71,18 @@ public class GlobalExceptionHandler {
                 .errors(errorList)
                 .build();
         return new ResponseEntity<>(customError, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<CustomError> badCredentialsException(BadCredentialsException exception) {
+        CustomError customError = CustomError
+                .builder()
+                .timestamp(LocalDateTime.now())
+                .code(HttpStatus.UNAUTHORIZED.value())
+                .status(HttpStatus.UNAUTHORIZED.name())
+                .errors(List.of(exception.getMessage()))
+                .build();
+        return new ResponseEntity<>(customError, HttpStatus.UNAUTHORIZED);
     }
 
 }

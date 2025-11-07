@@ -33,3 +33,6 @@ build/
 .vscode/
 
 application-dev.properties
+
+app.key
+app.pub

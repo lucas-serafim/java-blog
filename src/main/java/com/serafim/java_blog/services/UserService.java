@@ -3,8 +3,10 @@ package com.serafim.java_blog.services;
 import com.serafim.java_blog.domain.User;
 import com.serafim.java_blog.dto.UserRequestDTO;
 import com.serafim.java_blog.repository.UserRepository;
+import com.serafim.java_blog.services.exception.UserAlreadyExistsException;
 import com.serafim.java_blog.services.exception.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -17,12 +19,20 @@ public class UserService {
     @Autowired
     private UserRepository repository;
 
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
+
     public User insert(UserRequestDTO userRequestDTO) {
         /*
             TODO
                 1. Verify if user already exists by email
-                2. Encrypt user password and save it
         */
+
+        Optional<User> isUserAlreadyExists = repository.findByEmail(userRequestDTO.getEmail());
+
+        if (isUserAlreadyExists.isPresent()) {
+            throw new UserAlreadyExistsException("User already exists.");
+        }
 
         LocalDateTime now = LocalDateTime.now();
 
@@ -30,7 +40,7 @@ public class UserService {
                 UUID.randomUUID().toString(),
                 userRequestDTO.getName(),
                 userRequestDTO.getEmail(),
-                userRequestDTO.getPassword(),
+                passwordEncoder.encode(userRequestDTO.getPassword()),
                 now,
                 now
         );
