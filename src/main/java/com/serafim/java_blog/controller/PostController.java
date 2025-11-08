@@ -4,7 +4,6 @@ import com.serafim.java_blog.controller.exception.PostAuthorization;
 import com.serafim.java_blog.domain.Like;
 import com.serafim.java_blog.domain.Post;
 import com.serafim.java_blog.domain.User;
-import com.serafim.java_blog.domain.enums.LikeType;
 import com.serafim.java_blog.dto.PostRequestDTO;
 import com.serafim.java_blog.dto.UpdatePostRequestDTO;
 import com.serafim.java_blog.services.CommentaryService;
@@ -14,6 +13,7 @@ import com.serafim.java_blog.services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,14 +33,13 @@ public class PostController {
     @Autowired
     private LikeService likeService;
 
-    @Autowired
-    private CommentaryService commentaryService;
-
-    @PostMapping(path = "/users/{userId}")
+    @PostMapping()
     public ResponseEntity<Post> insert(
-            @PathVariable() String userId,
-            @Valid @ModelAttribute PostRequestDTO postRequestDTO
+            @Valid @ModelAttribute PostRequestDTO postRequestDTO,
+            JwtAuthenticationToken token
     ) {
+        String userId = token.getName();
+
         userService.findById(userId);
         return ResponseEntity.ok(postService.insert(postRequestDTO, userId));
     }
@@ -50,18 +49,20 @@ public class PostController {
         return ResponseEntity.ok(postService.findById(postId));
     }
 
-    @PostMapping("/{postId}/users/{userId}/like")
+    @PostMapping("/{postId}/like")
     public ResponseEntity<Void> like(
-            @PathVariable() String userId,
-            @PathVariable String postId
+            @PathVariable String postId,
+            JwtAuthenticationToken token
     ) {
+        String userId = token.getName();
+
         userService.findById(userId);
 
         Post post = postService.findById(postId);
-        Like like = likeService.findByUserIdAndEntityId(userId, postId);
+        Like like = likeService.findByUserIdAndPostId(userId, postId);
 
         if (like == null) {
-            likeService.insert(userId, postId, LikeType.POST);
+            likeService.postLike(userId, postId);
             post.increaseLike();
         } else {
             likeService.delete(like);
@@ -83,11 +84,25 @@ public class PostController {
         return ResponseEntity.ok(posts);
     }
 
-    @DeleteMapping("/{postId}/users/{userId}")
+    @GetMapping()
+    public ResponseEntity<List<Post>> findAll(
+            JwtAuthenticationToken token
+    ) {
+        String userId = token.getName();
+
+        userService.findById(userId);
+
+        List<Post> posts = postService.findAllByUserId(userId);
+        return ResponseEntity.ok(posts);
+    }
+
+    @DeleteMapping("/{postId}")
     public ResponseEntity<Void> delete(
             @PathVariable() String postId,
-            @PathVariable() String userId
+            JwtAuthenticationToken token
     ) {
+        String userId = token.getName();
+
         User user = userService.findById(userId);
         Post post = postService.findById(postId);
 
@@ -95,18 +110,19 @@ public class PostController {
             throw new PostAuthorization("You are not authorized to delete this post. Only the post owner may delete it.");
         }
 
-        commentaryService.deleteAllByPostId(postId);
         postService.delete(postId);
 
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/{postId}/users/{userId}")
+    @PatchMapping("/{postId}")
     public ResponseEntity<Post> update(
             @PathVariable() String postId,
-            @PathVariable() String userId,
-            @Valid @RequestBody UpdatePostRequestDTO updatePostRequestDTO
+            @Valid @RequestBody UpdatePostRequestDTO updatePostRequestDTO,
+            JwtAuthenticationToken token
     ) {
+        String userId = token.getName();
+
         User user = userService.findById(userId);
         Post post = postService.findById(postId);
 

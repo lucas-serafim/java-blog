@@ -13,6 +13,8 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Optional;
 
 @Service
@@ -35,19 +37,21 @@ public class AuthService {
         }
 
         var now = Instant.now();
-        var expiresIn = 300L;
 
         // TODO: Add user roles
 
         var claims = JwtClaimsSet.builder()
                 .issuer("auth-java-blog")
                 .subject(user.get().getId())
-                .issuedAt(now)
-                .expiresAt(now.plusSeconds(expiresIn))
+                .expiresAt(generateExpirationDate())
                 .build();
 
         String jwtToken =  jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
 
         return new AuthResponseDTO(jwtToken);
+    }
+
+    private Instant generateExpirationDate() {
+        return LocalDateTime.now().plusHours(1).toInstant(ZoneOffset.of("-03:00"));
     }
 }

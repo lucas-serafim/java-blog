@@ -1,6 +1,5 @@
 package com.serafim.java_blog.domain;
 
-import com.serafim.java_blog.domain.enums.LikeType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,7 +17,14 @@ public class Like {
     @Id
     private String id;
     private String userId;
-    private String entityId;
-    private LikeType entityType;
+    private String postId;
+    private String commentaryId;
     private LocalDateTime likedAt;
+
+    public Like(String id, String userId, String postId, LocalDateTime likedAt) {
+        this.id = id;
+        this.userId = userId;
+        this.postId = postId;
+        this.likedAt = likedAt;
+    }
 }

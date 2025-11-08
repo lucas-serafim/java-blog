@@ -3,10 +3,13 @@ package com.serafim.java_blog.services;
 import com.serafim.java_blog.domain.Image;
 import com.serafim.java_blog.domain.Post;
 import com.serafim.java_blog.dto.PostRequestDTO;
+import com.serafim.java_blog.repository.CommentaryRepository;
+import com.serafim.java_blog.repository.LikeRepository;
 import com.serafim.java_blog.repository.PostRepository;
 import com.serafim.java_blog.services.exception.PostNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -17,7 +20,13 @@ import java.util.*;
 public class PostService {
 
     @Autowired
-    private PostRepository repository;
+    private PostRepository postRepository;
+
+    @Autowired
+    private CommentaryRepository commentaryRepository;
+
+    @Autowired
+    private LikeRepository likeRepository;
 
     @Autowired
     private S3Service s3Service;
@@ -50,24 +59,29 @@ public class PostService {
                 now
         );
 
-        return repository.insert(post);
+        return postRepository.insert(post);
     }
 
     public void update(Post post) {
-        repository.save(post);
+        postRepository.save(post);
     }
 
     public Post findById(String id) {
-        Optional<Post> post = repository.findById(id);
+        Optional<Post> post = postRepository.findById(id);
         return post.orElseThrow(() -> new PostNotFoundException("Post not found. ID: " + id));
     }
 
     public List<Post> findAllByUserId(String userId) {
-        Optional<List<Post>> posts = repository.findAllByUserId(userId);
+        Optional<List<Post>> posts = postRepository.findAllByUserId(userId);
         return posts.orElse(null);
     }
 
+    @Transactional
     public void delete(String postId) {
-        repository.deleteById(postId);
+        likeRepository.deleteAllByPostId(postId);
+
+        commentaryRepository.deleteAllByPostId(postId);
+
+        postRepository.deleteById(postId);
     }
 }

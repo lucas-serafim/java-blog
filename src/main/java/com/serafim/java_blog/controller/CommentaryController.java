@@ -5,7 +5,6 @@ import com.serafim.java_blog.domain.Commentary;
 import com.serafim.java_blog.domain.Like;
 import com.serafim.java_blog.domain.Post;
 import com.serafim.java_blog.domain.User;
-import com.serafim.java_blog.domain.enums.LikeType;
 import com.serafim.java_blog.dto.CommentaryRequestDTO;
 import com.serafim.java_blog.services.CommentaryService;
 import com.serafim.java_blog.services.LikeService;
@@ -14,6 +13,7 @@ import com.serafim.java_blog.services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,24 +35,28 @@ public class CommentaryController {
     @Autowired
     private LikeService likeService;
 
-    @PostMapping("/posts/{postId}/users/{userId}")
+    @PostMapping("/posts/{postId}")
     public ResponseEntity<Commentary> comment(
             @PathVariable() String postId,
-            @PathVariable() String userId,
-            @Valid @RequestBody CommentaryRequestDTO commentaryRequestDTO
+            @Valid @RequestBody CommentaryRequestDTO commentaryRequestDTO,
+            JwtAuthenticationToken token
     ) {
+        String userId = token.getName();
+
         userService.findById(userId);
         postService.findById(postId);
         return ResponseEntity.ok(commentaryService.comment(commentaryRequestDTO, postId, userId));
     }
 
-    @PostMapping("/{commentaryId}/posts/{postId}/users/{userId}/reply-comment")
+    @PostMapping("/{commentaryId}/posts/{postId}/reply-comment")
     public ResponseEntity<Commentary> reply(
             @PathVariable() String commentaryId,
             @PathVariable() String postId,
-            @PathVariable() String userId,
-            @Valid @RequestBody CommentaryRequestDTO commentaryRequestDTO
+            @Valid @RequestBody CommentaryRequestDTO commentaryRequestDTO,
+            JwtAuthenticationToken token
     ) {
+        String userId = token.getName();
+
         userService.findById(userId);
         postService.findById(postId);
         commentaryService.findById(commentaryId);
@@ -60,20 +64,22 @@ public class CommentaryController {
         return ResponseEntity.ok(commentaryService.reply(commentaryRequestDTO, commentaryId, postId, userId));
     }
 
-    @PostMapping("/{commentaryId}/posts/{postId}/users/{userId}/like")
+    @PostMapping("/{commentaryId}/posts/{postId}/like")
     public ResponseEntity<Void> like(
             @PathVariable() String postId,
             @PathVariable() String commentaryId,
-            @PathVariable() String userId
+            JwtAuthenticationToken token
     ) {
+        String userId = token.getName();
+
         userService.findById(userId);
         postService.findById(postId);
 
         Commentary commentary = commentaryService.findById(commentaryId);
-        Like like = likeService.findByUserIdAndEntityId(userId, commentaryId);
+        Like like = likeService.findByUserIdAndCommentaryId(userId, commentaryId);
 
         if (like == null) {
-            likeService.insert(userId, commentaryId, LikeType.COMMENTARY);
+            likeService.commentaryLike(userId, postId, commentaryId);
             commentary.increaseLike();
         } else {
             likeService.delete(like);
@@ -93,12 +99,14 @@ public class CommentaryController {
         return ResponseEntity.ok(commentaries);
     }
 
-    @DeleteMapping("/{commentaryId}/posts/{postId}/users/{userId}")
+    @DeleteMapping("/{commentaryId}/posts/{postId}")
     public ResponseEntity<Void> delete(
             @PathVariable() String commentaryId,
             @PathVariable() String postId,
-            @PathVariable() String userId
+            JwtAuthenticationToken token
     ) {
+        String userId = token.getName();
+
         User user = userService.findById(userId);
         Post post = postService.findById(postId);
         Commentary commentary = commentaryService.findById(commentaryId);
@@ -108,15 +116,18 @@ public class CommentaryController {
         }
 
         commentaryService.delete(commentaryId);
+
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/{commentaryId}/users/{userId}")
+    @PatchMapping("/{commentaryId}")
     public ResponseEntity<Commentary> update(
             @PathVariable() String commentaryId,
-            @PathVariable() String userId,
-            @Valid @RequestBody CommentaryRequestDTO commentaryRequestDTO
+            @Valid @RequestBody CommentaryRequestDTO commentaryRequestDTO,
+            JwtAuthenticationToken token
     ) {
+        String userId = token.getName();
+
         User user = userService.findById(userId);
         Commentary commentary = commentaryService.findById(commentaryId);
 
