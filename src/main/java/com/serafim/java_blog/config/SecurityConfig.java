@@ -37,7 +37,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .authorizeHttpRequests(authorize -> authorize
-                            .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
+                            .requestMatchers(HttpMethod.POST, "/users/login").permitAll()
                             .requestMatchers(HttpMethod.POST, "/users/sign-up").permitAll()
                             .anyRequest().authenticated())
                 .csrf(AbstractHttpConfigurer::disable)

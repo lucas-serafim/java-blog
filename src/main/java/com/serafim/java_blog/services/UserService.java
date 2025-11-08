@@ -22,7 +22,7 @@ public class UserService {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
-    public User insert(UserRequestDTO userRequestDTO) {
+    public User signUp(UserRequestDTO userRequestDTO) {
         /*
             TODO
                 1. Verify if user already exists by email
