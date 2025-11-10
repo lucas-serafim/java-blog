@@ -9,7 +9,7 @@ O sistema permite que usuários se registrem, criem posts com imagens, comentem 
 
 ## 🚀 Tecnologias Utilizadas
 
-- **Java 17+**
+- **Java 21**
 - **Spring Boot** – Framework principal da aplicação  
 - **Spring Security + OAuth2** – Autenticação e autorização  
 - **AWS S3** – Armazenamento de imagens  
