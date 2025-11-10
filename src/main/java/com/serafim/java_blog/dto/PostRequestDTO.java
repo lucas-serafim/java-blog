@@ -1,5 +1,6 @@
 package com.serafim.java_blog.dto;
 
+import com.serafim.java_blog.validation.ValidImageExtension;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -22,6 +23,7 @@ public class PostRequestDTO {
     @Size(min = 1)
     private String text;
 
+    @ValidImageExtension
     private MultipartFile[] images = new MultipartFile[0];
 
     public PostRequestDTO(String title, String text) {
