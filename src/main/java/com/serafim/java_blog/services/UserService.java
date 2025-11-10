@@ -2,6 +2,7 @@ package com.serafim.java_blog.services;
 
 import com.serafim.java_blog.domain.User;
 import com.serafim.java_blog.dto.UserRequestDTO;
+import com.serafim.java_blog.dto.UserResponseDTO;
 import com.serafim.java_blog.repository.UserRepository;
 import com.serafim.java_blog.services.exception.UserAlreadyExistsException;
 import com.serafim.java_blog.services.exception.UserNotFoundException;
@@ -22,7 +23,7 @@ public class UserService {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
-    public User signUp(UserRequestDTO userRequestDTO) {
+    public UserResponseDTO signUp(UserRequestDTO userRequestDTO) {
         /*
             TODO
                 1. Verify if user already exists by email
@@ -45,7 +46,15 @@ public class UserService {
                 now
         );
 
-        return repository.insert(user);
+        repository.insert(user);
+
+        return new UserResponseDTO(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getCreatedAt(),
+                user.getUpdatedAt()
+        );
     }
 
     public User findById(String id) {

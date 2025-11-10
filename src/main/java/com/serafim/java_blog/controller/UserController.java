@@ -4,6 +4,7 @@ import com.serafim.java_blog.domain.User;
 import com.serafim.java_blog.dto.AuthRequestDTO;
 import com.serafim.java_blog.dto.AuthResponseDTO;
 import com.serafim.java_blog.dto.UserRequestDTO;
+import com.serafim.java_blog.dto.UserResponseDTO;
 import com.serafim.java_blog.services.AuthService;
 import com.serafim.java_blog.services.UserService;
 import jakarta.validation.Valid;
@@ -22,7 +23,7 @@ public class UserController {
     private AuthService authService;
 
     @PostMapping("/sign-up")
-    public ResponseEntity<User> signUp(@Valid @RequestBody UserRequestDTO userRequestDTO) {
+    public ResponseEntity<UserResponseDTO> signUp(@Valid @RequestBody UserRequestDTO userRequestDTO) {
         return ResponseEntity.ok(userService.signUp(userRequestDTO));
     }
 
