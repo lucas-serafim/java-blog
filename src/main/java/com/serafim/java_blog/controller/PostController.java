@@ -110,7 +110,7 @@ public class PostController {
             throw new PostAuthorization("You are not authorized to delete this post. Only the post owner may delete it.");
         }
 
-        postService.delete(postId);
+        postService.delete(post);
 
         return ResponseEntity.noContent().build();
     }

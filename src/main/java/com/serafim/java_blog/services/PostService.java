@@ -37,12 +37,12 @@ public class PostService {
         List<Image> images = new ArrayList<>();
 
         for (MultipartFile file : postRequestDTO.getImages()) {
-            String imageId = UUID.randomUUID().toString();
-            String url = s3Service.putObject(imageId, file);;
+            String keyName = s3Service.putObject(file);;
+            String url = s3Service.getUrl(keyName);
 
             Image image = new Image(
-                    imageId,
-                    url
+                    url,
+                    keyName
             );
 
             images.add(image);
@@ -77,11 +77,20 @@ public class PostService {
     }
 
     @Transactional
-    public void delete(String postId) {
+    public void delete(Post post) {
+        String postId = post.getId();
+
         likeRepository.deleteAllByPostId(postId);
 
         commentaryRepository.deleteAllByPostId(postId);
 
+        post.getImages().forEach(image -> deleteImage(image.getKeyName()));
+
         postRepository.deleteById(postId);
+    }
+
+    @Transactional
+    public void deleteImage(String keyName) {
+        s3Service.deleteObject(keyName);
     }
 }

@@ -11,6 +11,6 @@ import lombok.Setter;
 @Setter
 public class Image {
 
-    private String id;
     private String url;
+    private String keyName;
 }
